@@ -82,7 +82,7 @@ char *read_line(void)
 char *read_line_alt(void) 
 {
         char *line = NULL;
-        ssize_t buffer_size = 0;
+        size_t buffer_size = 0;
         
         if (getline(&line, &buffer_size, stdin) == -1) {
                 if (feof(stdin)) {
@@ -144,6 +144,10 @@ int launch(char **args)
         } else {
                 do {
                         w = waitpid(cpid, &wstatus, WUNTRACED);
+                        if (w == -1) {
+                                perror("waitpid");
+                                exit(EXIT_FAILURE);
+                        }
                 } while (!WIFEXITED(wstatus) && !WIFSIGNALED(wstatus));
         }
         return 1;
@@ -156,11 +160,10 @@ int execute(char **args)
         if (args[0] == NULL) {
                 return 1;
         }
-        while (i < count_of_builtins()) {
+        for (i = 0; i < count_of_builtins(); i++) {
                 if (strcmp(args[0], builtin_str[i]) == 0) {
                         return (*builtin_func[i])(args);
                 }
-                i++;
         }
         return launch(args);
 }
