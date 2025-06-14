@@ -11,6 +11,7 @@ gcc -o shell.out shell.c -Wall
 ## Additional Functionality
 Some features added over the existing implementation from the tutorial are as follows:
 1. Background process execution using `&` and management using additional helper functions and `sigchld_handler()`.
+2. Properly terminate background processes on calling `exit()` to avoid zombie processes and ensure clean resource reclamation.
 
 ## Tweaks
 Some changes compared to the original implementation of the tutorial:
