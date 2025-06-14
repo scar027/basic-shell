@@ -93,7 +93,32 @@ int shell_cd(char **args)
 }
 
 int shell_exit(char **args)
-{
+{       
+        int i;
+        int wstatus;
+        pid_t cpid;
+        
+        printf("shell: Exiting...\n");
+        for (i = 0; i < background_jobs.count; i++) {
+                cpid = background_jobs.jobs[i];
+                if (kill(cpid, SIGTERM) == -1) {
+                        perror("kill");
+                }
+
+                if (waitpid(cpid, &wstatus, 0) > 0) {
+                        if (WIFEXITED(wstatus)) {
+                                printf("Background job [%d] exited " 
+                                       "with status %d\n",
+                                       cpid, WEXITSTATUS(wstatus));
+                        } else if (WIFSIGNALED(wstatus)) {
+                                printf("Background job [%d] killed " 
+                                       "by signal %d\n", cpid, 
+                                       WTERMSIG(wstatus));
+                        } else {
+                                perror("waitpid");
+                        }
+                }
+        }
         exit(EXIT_SUCCESS);
 }
 
